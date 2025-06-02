@@ -27,7 +27,6 @@ const SaveMemoryArgsSchema = z.object({
 });
 
 const RecallMemoryAbstractArgsSchema = z.object({
-  query: z.string().optional().describe('Optional query to filter memories'),
   force_refresh: z.boolean().optional().describe('Force refresh without using cache'),
 });
 
@@ -82,7 +81,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     tools: [
       {
         name: 'save_memory',
-        description: 'Save a conversation message to long-term memory',
+        description: 'Save individual conversation messages to memory storage. Use this when you want to persist important parts of our current conversation. Call this for each significant message or exchange that should be remembered for future conversations. Typically used during or at the end of conversations to store key information, decisions, or context.',
         inputSchema: {
           type: 'object',
           properties: SaveMemoryArgsSchema.shape,
@@ -91,7 +90,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: 'recall_memory_abstract',
-        description: 'Recall the latest memory abstract summary from previous conversations',
+        description: 'Retrieve the current memory abstract that summarizes past conversations and context. Use this at the beginning of conversations to understand what has been discussed before, or when you need to check existing memory context. This gives you the processed summary of previous interactions, not raw messages. Call this to "remember" previous conversations with this user.',
         inputSchema: {
           type: 'object',
           properties: RecallMemoryAbstractArgsSchema.shape,
@@ -100,7 +99,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: 'update_memory_abstract',
-        description: 'Save an updated memory abstract to the database. Caller should first get current memory abstract, process it with new messages, then provide the updated abstract.',
+        description: 'Save a new or updated memory abstract after processing recent conversations. Use this when you have reviewed recent messages, combined them with existing memory context, and created an improved summary. The typical workflow is: 1) Get current memory abstract, 2) Get recent memories, 3) Process and combine them, 4) Save the updated abstract here. This maintains the evolving memory summary over time.',
         inputSchema: {
           type: 'object',
           properties: UpdateMemoryAbstractArgsSchema.shape,
@@ -109,7 +108,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       },
       {
         name: 'get_recent_memories',
-        description: 'Get recent memory history',
+        description: 'Retrieve recent raw conversation messages from the last few days. Use this when you need to see actual conversation history rather than the processed summary. Helpful for creating or updating memory abstracts, or when you need specific details from recent exchanges. This gives you the unprocessed message data to work with.',
         inputSchema: {
           type: 'object',
           properties: RecentMemoriesArgsSchema.shape,

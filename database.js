@@ -1,4 +1,5 @@
-import Database from 'better-sqlite3';
+import initSqlJs from 'sql.js';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { Logger } from './logger.js';
 
 export class DatabaseService {
@@ -6,14 +7,25 @@ export class DatabaseService {
     this.dbPath = dbPath;
     this.logger = new Logger('DatabaseService');
     this.sequenceCounters = new Map();
+    this.db = null;
+    this.SQL = null;
   }
 
   async initialize() {
     try {
-      this.db = new Database(this.dbPath);
+      // Initialize sql.js
+      this.SQL = await initSqlJs();
       
-      // Enable WAL mode for better concurrency
-      this.db.pragma('journal_mode = WAL');
+      // Load existing database or create new one
+      let dbData = null;
+      if (existsSync(this.dbPath)) {
+        dbData = readFileSync(this.dbPath);
+      }
+      
+      this.db = new this.SQL.Database(dbData);
+      
+      // Enable WAL mode is not available in sql.js, but we can set other pragmas
+      // this.db.exec('PRAGMA journal_mode = WAL'); // Not supported in sql.js
       
       await this.createTables();
       this.logger.info(`Database initialized at ${this.dbPath}`);
@@ -54,9 +66,17 @@ export class DatabaseService {
     `);
 
     this.logger.info('Database tables created successfully');
+    this.saveToFile();
   }
 
-
+  saveToFile() {
+    try {
+      const data = this.db.export();
+      writeFileSync(this.dbPath, data);
+    } catch (error) {
+      this.logger.error('Error saving database to file:', error);
+    }
+  }
 
   cleanMessageText(message) {
     if (!message) return '';
@@ -94,8 +114,6 @@ export class DatabaseService {
     return newCount;
   }
 
-
-
   async saveMemory(memory) {
     try {
       const cleanedMessage = this.cleanMessageText(memory.message);
@@ -114,15 +132,18 @@ export class DatabaseService {
         VALUES (?, ?, ?, ?)
       `);
 
-      const result = stmt.run(
+      const result = stmt.run([
         memory.speaker,
         cleanedMessage,
         memory.timestamp,
         sequence
-      );
+      ]);
+
+      stmt.free();
 
       if (result.changes > 0) {
         this.logger.info(`Saved memory for ${memory.speaker}`);
+        this.saveToFile();
         return { status: 'success', message: 'Memory saved successfully' };
       } else {
         this.logger.info(`Memory already exists for timestamp ${memory.timestamp} with sequence ${sequence}`);
@@ -143,8 +164,10 @@ export class DatabaseService {
         LIMIT 1
       `);
       
-      const result = stmt.get();
-      return result || null;
+      const result = stmt.step() ? stmt.getAsObject() : null;
+      stmt.free();
+      
+      return result;
     } catch (error) {
       this.logger.error('Error getting latest memory abstract:', error);
       return null;
@@ -159,9 +182,11 @@ export class DatabaseService {
         VALUES (?, ?, CURRENT_TIMESTAMP)
       `);
 
-      stmt.run(abstractContent, lastProcessedTimestamp);
+      stmt.run([abstractContent, lastProcessedTimestamp]);
+      stmt.free();
       
       this.logger.info(`Saved memory abstract`);
+      this.saveToFile();
       return { status: 'success', message: 'Memory abstract saved successfully' };
     } catch (error) {
       this.logger.error('Error saving memory abstract:', error);
@@ -178,7 +203,14 @@ export class DatabaseService {
         LIMIT 1000
       `);
       
-      return stmt.all(afterTimestamp);
+      const results = [];
+      stmt.bind([afterTimestamp]);
+      while (stmt.step()) {
+        results.push(stmt.getAsObject());
+      }
+      stmt.free();
+      
+      return results;
     } catch (error) {
       this.logger.error('Error getting messages after timestamp:', error);
       return [];
@@ -196,20 +228,36 @@ export class DatabaseService {
         LIMIT 1000
       `);
       
-      return stmt.all(cutoffTimestamp);
+      const results = [];
+      stmt.bind([cutoffTimestamp]);
+      while (stmt.step()) {
+        results.push(stmt.getAsObject());
+      }
+      stmt.free();
+      
+      return results;
     } catch (error) {
       this.logger.error('Error getting memories by date range:', error);
       return [];
     }
   }
 
-
-
   async getMemoryStats() {
     try {
-      const totalMemories = this.db.prepare('SELECT COUNT(*) as count FROM memories').get().count;
-      const uniqueSpeakers = this.db.prepare('SELECT COUNT(DISTINCT speaker) as count FROM memories').get().count;
-      const abstracts = this.db.prepare('SELECT COUNT(*) as count FROM memory_abstracts').get().count;
+      const totalMemoriesStmt = this.db.prepare('SELECT COUNT(*) as count FROM memories');
+      totalMemoriesStmt.step();
+      const totalMemories = totalMemoriesStmt.getAsObject().count;
+      totalMemoriesStmt.free();
+
+      const uniqueSpeakersStmt = this.db.prepare('SELECT COUNT(DISTINCT speaker) as count FROM memories');
+      uniqueSpeakersStmt.step();
+      const uniqueSpeakers = uniqueSpeakersStmt.getAsObject().count;
+      uniqueSpeakersStmt.free();
+
+      const abstractsStmt = this.db.prepare('SELECT COUNT(*) as count FROM memory_abstracts');
+      abstractsStmt.step();
+      const abstracts = abstractsStmt.getAsObject().count;
+      abstractsStmt.free();
       
       return {
         totalMemories,
@@ -228,11 +276,22 @@ export class DatabaseService {
 
   async getSchema() {
     try {
-      const tables = this.db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all();
+      const stmt = this.db.prepare("SELECT name FROM sqlite_master WHERE type='table'");
+      const tables = [];
+      while (stmt.step()) {
+        tables.push(stmt.getAsObject());
+      }
+      stmt.free();
+
       const schema = {};
       
       for (const table of tables) {
-        const columns = this.db.prepare(`PRAGMA table_info(${table.name})`).all();
+        const columnStmt = this.db.prepare(`PRAGMA table_info(${table.name})`);
+        const columns = [];
+        while (columnStmt.step()) {
+          columns.push(columnStmt.getAsObject());
+        }
+        columnStmt.free();
         schema[table.name] = columns;
       }
       
@@ -245,6 +304,7 @@ export class DatabaseService {
 
   async close() {
     if (this.db) {
+      this.saveToFile();
       this.db.close();
       this.logger.info('Database connection closed');
     }

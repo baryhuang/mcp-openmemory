@@ -124,15 +124,32 @@ export class DatabaseService {
         return { status: 'skipped', message: 'Message too short after cleaning' };
       }
 
+      // First check if this exact memory already exists (same speaker, message, and timestamp)
+      const checkExistingStmt = this.db.prepare(`
+        SELECT id FROM memories 
+        WHERE speaker = ? AND message = ? AND timestamp = ?
+        LIMIT 1
+      `);
+      
+      checkExistingStmt.bind([memory.speaker, cleanedMessage, memory.timestamp]);
+      const existingMemory = checkExistingStmt.step() ? checkExistingStmt.getAsObject() : null;
+      checkExistingStmt.free();
+
+      if (existingMemory) {
+        this.logger.info(`Memory already exists with same content for ${memory.speaker} at timestamp ${memory.timestamp}`);
+        return { status: 'success', message: 'Memory already exists with same content - no action needed' };
+      }
+
+      // Memory doesn't exist, proceed with insertion
       const sequence = this.getSequenceNumber(memory.timestamp);
 
       const stmt = this.db.prepare(`
-        INSERT OR IGNORE INTO memories 
+        INSERT INTO memories 
         (speaker, message, timestamp, sequence)
         VALUES (?, ?, ?, ?)
       `);
 
-      const result = stmt.run([
+      stmt.run([
         memory.speaker,
         cleanedMessage,
         memory.timestamp,
@@ -141,16 +158,19 @@ export class DatabaseService {
 
       stmt.free();
 
-      if (result.changes > 0) {
-        this.logger.info(`Saved memory for ${memory.speaker}`);
-        this.saveToFile();
-        return { status: 'success', message: 'Memory saved successfully' };
-      } else {
-        this.logger.info(`Memory already exists for timestamp ${memory.timestamp} with sequence ${sequence}`);
-        return { status: 'duplicate', message: 'Memory already exists' };
-      }
+      // If we get here without throwing an exception, the insert was successful
+      this.logger.info(`Saved memory for ${memory.speaker}`);
+      this.saveToFile();
+      return { status: 'success', message: 'Memory saved successfully' };
 
     } catch (error) {
+      // Handle unique constraint violations specifically
+      if (error.message && error.message.includes('UNIQUE constraint failed')) {
+        // This shouldn't happen with our pre-check, but handle it gracefully
+        this.logger.info(`Unique constraint violation for timestamp ${memory.timestamp} - memory may have been saved concurrently`);
+        return { status: 'success', message: 'Memory save completed (possible concurrent save detected)' };
+      }
+      
       this.logger.error('Error saving memory:', error);
       return { status: 'error', message: error instanceof Error ? error.message : String(error) };
     }

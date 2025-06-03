@@ -23,7 +23,7 @@ const logger = new Logger('mcp-openmemory');
 const SaveMemoryArgsSchema = z.object({
   speaker: z.string().describe('Who spoke: agent, user, or system'),
   message: z.string().describe('The message content'),
-  context: z.string().optional().describe('Additional context about the conversation'),
+  context: z.string().describe('A short description of the scope of the memory. In Claude, it is the project name. In a conversation, it is name of the user or charactor name. It can be a scenario name or a project name. It is used to group memories together to maintain a coherent memory context. You can decide what context is most appropriate for the memory.'),
 });
 
 const RecallMemoryAbstractArgsSchema = z.object({
@@ -85,7 +85,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         inputSchema: {
           type: 'object',
           properties: SaveMemoryArgsSchema.shape,
-          required: ['speaker', 'message'],
+          required: ['speaker', 'message', 'context'],
         },
       },
       {

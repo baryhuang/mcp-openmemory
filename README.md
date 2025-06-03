@@ -9,21 +9,6 @@ Gives Claude the ability to remember your conversations and learn from them over
 - **Recent History**: Access recent conversations within configurable time windows
 - **Local Database**: Uses SQLite for persistent storage without external dependencies
 
-## Installation
-
-### From npm
-
-```bash
-npm install -g @buryhuang/mcp-openmemory
-```
-
-### From source
-
-```bash
-git clone https://github.com/buryhuang/mcp-openmemory.git
-cd mcp-openmemory
-npm install
-```
 
 ## Configuration
 

@@ -13,14 +13,13 @@ Gives Claude the ability to remember your conversations and learn from them over
 ## Configuration
 
 ### Claude Desktop Integration
-
-Add to your Claude Desktop MCP configuration (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
-
+Run directly using npm
 ```json
 {
   "mcpServers": {
     "memory": {
-      "command": "memory-mcp",
+      "command": "npx",
+      "args": ["@buryhuang/mcp-openmemory"],
       "env": {
         "MEMORY_DB_PATH": "/path/to/your/memory.sqlite"
       }
@@ -29,14 +28,14 @@ Add to your Claude Desktop MCP configuration (`~/Library/Application Support/Cla
 }
 ```
 
-Or if installed from source:
 
+Or run from source
 ```json
 {
   "mcpServers": {
     "memory": {
-      "command": "node",
-      "args": ["/path/to/mcp-openmemory/server.js"],
+      "command": "npx",
+      "args": ["/path/to/your/repo/server.js"]
       "env": {
         "MEMORY_DB_PATH": "/path/to/your/memory.sqlite"
       }
@@ -69,11 +68,6 @@ Or if installed from source:
 
 The server starts automatically when configured with Claude Desktop. The database will be created automatically on first use.
 
-## Development
-
-```bash
-npm run dev
-```
 
 ## License
 

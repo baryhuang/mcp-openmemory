@@ -9,6 +9,9 @@ Gives Claude the ability to remember your conversations and learn from them over
 - **Recent History**: Access recent conversations within configurable time windows
 - **Local Database**: Uses SQLite for persistent storage without external dependencies
 
+## ⚠️ Important
+
+**You must configure `MEMORY_DB_PATH` to a persistent location to avoid losing your conversation history when Claude Desktop closes.** If not configured, the database defaults to `./memory.sqlite` in a temporary location that may be cleared when the application restarts.
 
 ## Configuration
 

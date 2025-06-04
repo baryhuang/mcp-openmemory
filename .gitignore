@@ -136,3 +136,5 @@ dist
 .pnp.*
 
 memory.sqlite
+
+.cursor/

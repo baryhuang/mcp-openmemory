@@ -22,11 +22,13 @@ Run directly using npm
 ```json
 {
   "mcpServers": {
-    "memory": {
+    "mcp-openmemory": {
       "command": "npx",
-      "args": ["@buryhuang/mcp-openmemory"],
+      "args": [
+        "@peakmojo/mcp-openmemory@latest"
+      ],
       "env": {
-        "MEMORY_DB_PATH": "/path/to/your/memory.sqlite"
+        "MEMORY_DB_PATH": "/Users/username/mcp-memory.sqlite"
       }
     }
   }

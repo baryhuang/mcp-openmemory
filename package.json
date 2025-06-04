@@ -1,6 +1,6 @@
 {
   "name": "@peakmojo/mcp-openmemory",
-  "version": "0.1.0",
+  "version": "0.1.4",
   "description": "MCP server for memory management with long-term and short-term memory capabilities using local database",
   "main": "server.js",
   "publishConfig": {
@@ -11,23 +11,13 @@
   },
   "type": "module",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js",
-    "build": "echo 'No build step needed for vanilla JS'",
-    "watch": "echo 'No watch step needed for vanilla JS'",
-    "prepare": "echo 'No prepare step needed for vanilla JS'"
+    "start": "node server.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1",
-    "sql.js": "^1.11.0",
     "node-ssh": "^13.2.1",
+    "sql.js": "^1.11.0",
     "zod": "^3.24.3"
-  },
-  "devDependencies": {
-    "@types/better-sqlite3": "^7.6.11",
-    "@types/node": "^22.0.0",
-    "shx": "^0.3.4",
-    "typescript": "^5.8.2"
   },
   "repository": {
     "type": "git",

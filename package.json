@@ -11,7 +11,8 @@
   },
   "type": "module",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node test-memory.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1",

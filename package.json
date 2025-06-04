@@ -1,5 +1,5 @@
 {
-  "name": "@buryhuang/mcp-openmemory",
+  "name": "@peakmojo/mcp-openmemory",
   "version": "0.1.0",
   "description": "MCP server for memory management with long-term and short-term memory capabilities using local database",
   "main": "server.js",

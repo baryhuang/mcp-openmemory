@@ -1,5 +1,7 @@
 # MCP OpenMemory Server
 
+[![npm version](https://img.shields.io/npm/v/@peakmojo/mcp-openmemory.svg)](https://www.npmjs.com/package/@peakmojo/mcp-openmemory) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Gives Claude the ability to remember your conversations and learn from them over time.
 
 ## Features

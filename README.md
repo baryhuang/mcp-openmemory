@@ -1,6 +1,6 @@
 # MCP OpenMemory Server
 
-[![npm version](https://img.shields.io/npm/v/@peakmojo/mcp-openmemory.svg)](https://www.npmjs.com/package/@peakmojo/mcp-openmemory) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![npm version](https://img.shields.io/npm/v/@peakmojo/mcp-openmemory.svg)](https://www.npmjs.com/package/@peakmojo/mcp-openmemory) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![MCP](https://img.shields.io/badge/MCP-Model%20Context%20Protocol-blue)](https://modelcontextprotocol.io/)
 
 Gives Claude the ability to remember your conversations and learn from them over time.
 
@@ -17,7 +17,27 @@ Gives Claude the ability to remember your conversations and learn from them over
 
 ## Configuration
 
+### Prerequisites
+
+- **Node.js**: Required to run the MCP server. Verify installation with:
+  ```bash
+  node --version
+  ```
+  If not installed, download from [nodejs.org](https://nodejs.org)
+
+- **Claude Desktop**: Download the latest version for [macOS or Windows](https://modelcontextprotocol.io/quickstart/user)
+
 ### Claude Desktop Integration
+
+#### Configuration File Location
+
+The Claude Desktop configuration file is located at:
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`  
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+To access: Open Claude Desktop → Claude menu → Settings → Developer → Edit Config
+
+#### macOS/Linux
 Run directly using npm
 ```json
 {
@@ -35,14 +55,31 @@ Run directly using npm
 }
 ```
 
+#### Windows
+Run directly using npm
+```json
+{
+  "mcpServers": {
+    "mcp-openmemory": {
+      "command": "npx",
+      "args": [
+        "@peakmojo/mcp-openmemory@latest"
+      ],
+      "env": {
+        "MEMORY_DB_PATH": "C:\\Users\\username\\mcp-memory.sqlite"
+      }
+    }
+  }
+}
+```
 
-Or run from source
+#### Run from source (all platforms)
 ```json
 {
   "mcpServers": {
     "memory": {
       "command": "npx",
-      "args": ["/path/to/your/repo/server.js"]
+      "args": ["/path/to/your/repo/server.js"],
       "env": {
         "MEMORY_DB_PATH": "/path/to/your/memory.sqlite"
       }
@@ -54,6 +91,57 @@ Or run from source
 ### Environment Variables
 
 - `MEMORY_DB_PATH`: Path to SQLite database file (default: `./memory.sqlite`)
+
+### Verification
+
+After configuring and restarting Claude Desktop, you should see:
+
+1. **Slider Icon** (🔧) in the bottom left of the input box
+2. **Available Tools** when clicking the slider:
+   - `save_memory`
+   - `recall_memory_abstract` 
+   - `update_memory_abstract`
+   - `get_recent_memories`
+
+### Troubleshooting  
+
+#### Server Not Showing Up
+
+1. **Restart Claude Desktop** completely
+2. **Check JSON syntax** in your configuration file
+3. **Verify paths are absolute** (not relative) and exist
+4. **Test manual server start**:
+   ```bash
+   # Test if the server runs correctly
+   npx @peakmojo/mcp-openmemory@latest
+   ```
+
+#### Check Logs
+
+**Log Locations:**
+- **macOS**: `~/Library/Logs/Claude/`
+- **Windows**: `%APPDATA%\Claude\logs\`
+
+**View recent logs:**
+```bash
+# macOS/Linux
+tail -n 20 -f ~/Library/Logs/Claude/mcp*.log
+
+# Windows  
+type "%APPDATA%\Claude\logs\mcp*.log"
+```
+
+#### Common Issues
+
+- **ENOENT errors on Windows**: Add `APPDATA` to your env configuration
+- **Tool calls failing**: Check server logs for errors
+- **NPM not found**: Install NPM globally with `npm install -g npm`
+
+For detailed troubleshooting, see the [official MCP documentation](https://modelcontextprotocol.io/quickstart/user).
+
+### Security Note
+
+⚠️ **Claude Desktop runs MCP servers with your user account permissions.** Only install servers from trusted sources.
 
 ## Available Tools
 
@@ -98,6 +186,14 @@ You should use memory tools thoughtfully to enhance conversation continuity and 
 Use these tools to build continuity and provide more personalized assistance, not as error-prevention mechanisms or intent-guessing systems.
 ```
 
+## References
+
+- **[Model Context Protocol (MCP) Official Documentation](https://modelcontextprotocol.io/)** - Complete MCP specification and guides
+- **[MCP Quickstart for Claude Desktop Users](https://modelcontextprotocol.io/quickstart/user)** - Step-by-step setup guide
+- **[MCP Server Development Guide](https://modelcontextprotocol.io/quickstart/server)** - For building custom MCP servers
+- **[MCP GitHub Repository](https://github.com/modelcontextprotocol)** - Official MCP implementation and examples
+- **[Claude Desktop](https://claude.ai/desktop)** - Download Claude Desktop application
+- **[Node.js](https://nodejs.org/)** - Required runtime for MCP servers
 
 ## License
 

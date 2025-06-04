@@ -60,18 +60,41 @@ Or run from source
 - **update_memory_abstract**: Update the memory summary  
 - **get_recent_memories**: Retrieve recent conversation history
 
-## Available Resources
-
-- `memory://schema`: Database schema information
-- `memory://stats`: Memory statistics
-
-## Available Prompts
-
-- `memory_summary`: Generate memory summary for an agent
-
 ## Usage
 
 The server starts automatically when configured with Claude Desktop. The database will be created automatically on first use.
+
+## Example System Prompt
+```
+# Memory Usage Guidelines
+
+You should use memory tools thoughtfully to enhance conversation continuity and context retention:
+
+## When to Save Memory
+- **save_memory**: Store significant conversation exchanges, important decisions, user preferences, or key context that would be valuable to remember in future conversations
+- Focus on information that has lasting relevance rather than temporary details
+- Save when users share important personal information, project details, or ongoing work context
+
+## When to Update Memory Abstract  
+- **update_memory_abstract**: After processing recent conversations, combine new important information with existing context to create an improved summary
+- Update when there are meaningful developments in ongoing projects or relationships
+- Consolidate related information to maintain coherent context over time
+
+## When to Recall Memory
+- **recall_memory_abstract**: Use at the beginning of conversations to understand previous context, or when you need background information to better assist the user
+- **get_recent_memories**: Access when you need specific details from recent exchanges that aren't captured in the abstract
+- Recall when the user references previous conversations or when context would significantly improve your assistance
+
+## What Constitutes Critical Information
+- User preferences and working styles
+- Ongoing projects and their current status  
+- Important personal or professional context
+- Decisions made and their rationale
+- Key relationships or collaborations mentioned
+- Technical specifications or requirements for recurring tasks
+
+Use these tools to build continuity and provide more personalized assistance, not as error-prevention mechanisms or intent-guessing systems.
+```
 
 
 ## License

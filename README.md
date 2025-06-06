@@ -4,6 +4,10 @@
 
 Gives Claude the ability to remember your conversations and learn from them over time.
 
+
+https://github.com/user-attachments/assets/aef82b8e-3793-4ebd-b993-ddaef14d52d1
+
+
 ## Features
 
 - **Memory Storage**: Save and recall conversation messages

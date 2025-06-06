@@ -190,6 +190,51 @@ You should use memory tools thoughtfully to enhance conversation continuity and 
 Use these tools to build continuity and provide more personalized assistance, not as error-prevention mechanisms or intent-guessing systems.
 ```
 
+## 🔀 Namespacing Memory by Project
+
+You can separate memory per project in two ways:
+
+### 1. Hard Separation (Claude vs Cursor)
+
+Use different `MEMORY_DB_PATH` in each app's config:
+
+- **Claude** (`claude_desktop_config.json`):
+
+```json
+"mcpServers": {
+  "claude-memory": {
+    "command": "npx",
+    "args": ["@peakmojo/mcp-openmemory@latest"],
+    "env": {
+      "MEMORY_DB_PATH": "/Users/you/claude-memory.sqlite"
+    }
+  }
+}
+```
+- **Cursor** (.cursor/config.json or tool config):
+```
+"mcpServers": {
+  "cursor-memory": {
+    "command": "npx",
+    "args": ["@peakmojo/mcp-openmemory@latest"],
+    "env": {
+      "MEMORY_DB_PATH": "/Users/you/cursor-memory.sqlite"
+    }
+  }
+}
+```
+Each app runs its own instance, storing to its own DB.
+
+### 2. Soft Namespacing via context
+
+When calling memory tools, pass a custom "context":
+```
+{ "context": "project-x", "message": "Notes from project X." }
+```
+Use this to segment memory logically within the same database.
+
+🔍 Semantic search is not supported yet. Open a GitHub issue if needed.
+
 ## References
 
 - **[Model Context Protocol (MCP) Official Documentation](https://modelcontextprotocol.io/)** - Complete MCP specification and guides

@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/baryhuang-mcp-openmemory-badge.png)](https://mseep.ai/app/baryhuang-mcp-openmemory)
+
 # MCP OpenMemory Server
 
 [![npm version](https://img.shields.io/npm/v/@peakmojo/mcp-openmemory.svg)](https://www.npmjs.com/package/@peakmojo/mcp-openmemory) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![MCP](https://img.shields.io/badge/MCP-Model%20Context%20Protocol-blue)](https://modelcontextprotocol.io/)
